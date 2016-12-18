@@ -21,49 +21,61 @@ class ViewController: UIViewController {
     @IBOutlet weak var outputLabel: UILabel!
     var storePreviousValue:Int = 0
     var displayOutputValue:Int = 0
-    var currentAction: CalculatorAction = CalculatorAction.RESET
+    var lastAction: CalculatorAction = CalculatorAction.RESET
+    var lastOperationAction: CalculatorAction = CalculatorAction.RESET
     
     func updateOutputLabel() {
         outputLabel.text = "\(displayOutputValue)"
     }
     
     func resetDataAndOutputValue() {
-        updateCurrentAction(action: CalculatorAction.RESET)
+        updateLastAction(action: CalculatorAction.RESET)
+        updateLastOperationAction(action: CalculatorAction.RESET)
         storePreviousValue = 0
         displayOutputValue = 0
         updateOutputLabel()
     }
     
     func updateOutputValueOnPressOfNumber(currentValue: Int) {
-        if (CalculatorAction.ADDITION == currentAction) {
-            storePreviousValue = storePreviousValue + currentValue
-        } else if (CalculatorAction.SUBTRACTION == currentAction) {
-            storePreviousValue = storePreviousValue - currentValue
-        } else if (CalculatorAction.RESET == currentAction) {
-            storePreviousValue = currentValue
-        } else if (CalculatorAction.CALCULATION == currentAction) {
-            //TODO: implement here to append number and display
-        }
-        
-        displayOutputValue = currentValue;
+        displayOutputValue = Int("\(displayOutputValue)" + "\(currentValue)")!;
         updateOutputLabel()
-        updateCurrentAction(action: CalculatorAction.CALCULATION)
+        updateLastAction(action: CalculatorAction.CALCULATION)
     }
     
     func updateOutputValueOnPressOfAction(action: CalculatorAction) {
-        updateCurrentAction(action: action)
+        if (CalculatorAction.CALCULATION == lastAction) {
+            if (CalculatorAction.ADDITION == lastOperationAction) {
+                storePreviousValue = storePreviousValue + displayOutputValue
+            } else if (CalculatorAction.SUBTRACTION == lastOperationAction) {
+                storePreviousValue = storePreviousValue - displayOutputValue
+            } else {
+                storePreviousValue = displayOutputValue
+            }
+        }
         displayOutputValue = 0
         updateOutputLabel()
+        
+        updateLastAction(action: action)
+        updateLastOperationAction(action: action)
     }
     
     func updateOutputValueOnEquals() {
-        updateCurrentAction(action: CalculatorAction.EQUALS)
+        if (CalculatorAction.ADDITION == lastOperationAction) {
+            storePreviousValue = storePreviousValue + displayOutputValue
+        } else if (CalculatorAction.SUBTRACTION == lastOperationAction) {
+            storePreviousValue = storePreviousValue - displayOutputValue
+        }
         displayOutputValue = storePreviousValue
         updateOutputLabel()
+        updateLastAction(action: CalculatorAction.EQUALS)
     }
     
-    func updateCurrentAction(action: CalculatorAction) {
-        currentAction = action
+    func updateLastAction(action: CalculatorAction) {
+        lastAction = action
+    }
+    
+    func updateLastOperationAction(action: CalculatorAction) {
+        lastOperationAction = action
     }
     
     @IBAction func press9(_ sender: Any) {
